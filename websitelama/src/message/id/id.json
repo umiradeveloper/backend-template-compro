@@ -1,0 +1,125 @@
+{
+    "HeroSection": {
+        "title": "Perusahaan konstruksi desain dan rekayasa yang profesional, berkembang pesat, dan berkelanjutan sejak tahun 2016."
+    },
+    "StatsFacts": {
+        "heading": "Menghadirkan kualitas terbaik melalui inovasi dan pengalaman.",
+        "description": "Dengan pengalaman bertahun-tahun serta tim yang berdedikasi, kami terus memberikan solusi arsitektur dan interior berkualitas tinggi kepada klien kami.",
+        "button": "Who we are",
+        "scores": [
+            "Tahun Pengalaman",
+            "Klien yang kami jalin hubungan kerja sama jangka panjang",
+            "Proyek ini terdiri dari total 429 unit vila dan 1 hotel, dengan luas lahan keseluruhan mencapai 47.256,64 m²"
+        ]
+    },
+    "PortfolioSection": {
+        "title": "Proyek Kami",
+        "desc": "Mari membangun sesuatu yang luar biasa bersama. Jelajahi proyek kami dan lihat bagaimana kami mewujudkan ide menjadi kenyataan.",
+        "heading": "Proyek",
+        "headingdesc": "Sebuah pameran kreativitas, strategi, dan hasil. Jelajahi proyek-proyek yang mendefinisikan kami."
+    },
+    "ServicesSection": {
+        "name": "Layanan",
+        "heading": "Layanan Kami",
+        "descp": "Dari perencanaan hingga konstruksi, kami hadir untuk mendukung kebutuhan Anda. Temukan layanan kami dan bagaimana kami memberikan solusi yang andal.",
+        "items": [
+            {
+                "heading": "Konstruksi Pondasi & Bangunan",
+                "desc": "Kami mengkhususkan diri dalam membangun pondasi yang kuat dan bangunan berkualitas tinggi sesuai standar industri terbaik."
+            },
+            {
+                "heading": "Konstruksi Sipil & Arsitektur",
+                "desc": "Kami menghadirkan solusi inovatif dan tangguh dalam konstruksi sipil dan arsitektur, menciptakan ruang yang bertahan lama."
+            },
+            {
+                "heading": "Pekerjaan Interior",
+                "desc": "Kami menciptakan interior eksklusif dan mewah yang memadukan kemewahan dengan fungsi yang elegan."
+            }
+        ],
+        "button": "Lihat Proyek Kami"
+    },
+    "FaqSection": {
+        "title": "Pertanyaan yang Sering Diajukan",
+        "desc": "Punya pertanyaan? Temukan jawabannya di FAQ kami dan pelajari lebih lanjut tentang proses, layanan, serta standar kami.",
+        "items": [
+            {
+                "question": "Layanan apa saja yang disediakan oleh Umira Sinergi Global?",
+                "answer": "Umira Sinergi Global menyediakan layanan desain dan konstruksi terintegrasi, termasuk desain arsitektur, rekayasa struktur, sistem MEP, pekerjaan konstruksi, renovasi, serta manajemen proyek untuk vila, bangunan hunian, ruang komersial, dan proyek infrastruktur."
+            },
+            {
+                "question": "Apakah Anda menangani proyek dari tahap desain hingga konstruksi?",
+                "answer": "Ya, kami menyediakan layanan menyeluruh mulai dari tahap perencanaan dan desain hingga pelaksanaan konstruksi. Tim kami bekerja secara terintegrasi untuk memastikan setiap proyek berjalan efisien, berkualitas tinggi, dan sesuai dengan kebutuhan klien."
+            },
+            {
+                "question": "Bagaimana Anda memastikan kualitas dan keselamatan selama proses konstruksi?",
+                "answer": "Kualitas dan keselamatan adalah prioritas utama kami. Setiap proyek diawasi oleh insinyur berpengalaman dan tim lapangan yang didukung oleh prosedur pengendalian kualitas yang terstruktur, standar HSE, serta pemantauan progres secara berkala selama proses konstruksi."
+            },
+            {
+                "question": "Bagaimana cara memulai proyek dengan Umira Sinergi Global?",
+                "answer": "Anda dapat memulai dengan menghubungi tim kami melalui halaman Contact Us. Sampaikan detail proyek, lokasi, dan kebutuhan Anda, kemudian tim kami akan mengatur diskusi atau kunjungan lokasi untuk memberikan solusi yang paling sesuai."
+            }
+        ]
+    },
+    "BlogSection": {
+        "title": "Aktivitas Terbaru",
+        "desc": "Tetap terhubung dengan perjalanan kami. Jelajahi aktivitas terbaru, pembaruan proyek, dan perkembangan progres di lokasi proyek.",
+        "heading": "Aktivitas Terbaru",
+        "headingdesc": "Siap memulai sesuatu yang luar biasa? Hubungi kami dan mari terhubung untuk mewujudkannya bersama."
+    },
+    "ContactSection": {
+        "heading": "Kontak",
+        "headingdesc": "Siap memulai sesuatu yang luar biasa? Hubungi kami, kami siap mendengarkan kebutuhan Anda.",
+        "name": "Hubungi Kami",
+        "title": "Mari Terhubung",
+        "desc": "Mari berkolaborasi dan wujudkan sesuatu yang luar biasa. Ceritakan kebutuhan proyek Anda, dan kami siap membantu mewujudkannya.",
+        "nama": "Nama",
+        "message": "Ceritakan kebutuhan proyek Anda",
+        "success": "Berhasil! Email Anda telah berhasil dikirim. Kami akan segera menghubungi Anda.",
+        "submit": "Kirim Pesan"
+    },
+    "AboutHero": {
+        "heading": "Tentang Kami",
+        "desc": "Sejak tahun 2016, kami terus berkembang pesat dengan menyediakan layanan desain, rekayasa, pengadaan, dan konstruksi di seluruh Indonesia."
+    },
+    "AboutDetail": {
+        "title": "Umira Sinergi Global.",
+        "visionTitle": "Visi:",
+        "visionText": "Menjadi perusahaan yang berdaya saing global dengan mengutamakan kualitas dan keberlanjutan, memberikan manfaat luas bagi masyarakat, serta menjunjung tinggi prinsip-prinsip Islam sebagai landasan kesuksesan dan keberkahan.",
+        "missionTitle": "Misi:",
+        "mission": [
+            "Mengintegrasikan prinsip kejujuran, amanah, dan transparansi dalam seluruh aspek bisnis untuk membangun kepercayaan dengan pelanggan, mitra, dan masyarakat luas.",
+            "Memberikan layanan dan produk berkualitas tinggi dengan efisiensi biaya serta ketepatan waktu, berlandaskan nilai ihsan dan keberkahan dalam setiap proses bisnis.",
+            "Menciptakan dampak sosial yang positif, termasuk melalui program pemberdayaan masyarakat dan tanggung jawab sosial perusahaan.",
+            "Mengelola bisnis dengan fokus kuat pada keselamatan dan kesehatan kerja, ramah lingkungan, serta keberlanjutan sesuai konsep kemaslahatan.",
+            "Mematuhi prinsip syariah dalam seluruh aktivitas bisnis guna menjaga integritas dan kesadaran spiritual (taqwa)."
+        ],
+        "valueTitle": "Nilai Perusahaan:",
+        "values": [
+            "Ukhuwah: Persaudaraan dan kasih sayang",
+            "Mashlahat: Memberikan manfaat sebesar-besarnya",
+            "Ikhlas, Istiqomah, Ihsan: Keikhlasan mencari ridha Allah, konsistensi dalam kebaikan, serta kesungguhan dalam setiap usaha",
+            "Rahmah: Kasih sayang dan kelembutan hati",
+            "Amanah: Tanggung jawab dan dapat dipercaya"
+        ]
+    },
+    "AboutStats": {
+        "stats": [
+            {
+                "title": "Klien",
+                "descp": "Kami membangun hubungan lebih dari sekadar kepentingan klien"
+            },
+            {
+                "title": "Tahun Pengalaman",
+                "descp": "Desain, Konstruksi & Infrastruktur"
+            },
+            {
+                "title": "Total Luas Bangunan",
+                "descp": "Proyek ini terdiri dari total 429 unit villa dan 1 hotel. Total luas lahan gabungan untuk villa dan hotel mencapai 47.256,64 m²."
+            }
+        ]
+    },
+    "CareerSection": {
+        "heading": "Peluang Karier",
+        "headingdesc": "Siap membangun sesuatu yang bermakna? Temukan peluang karier yang tersedia dan tumbuh bersama kami."
+    }
+}
