@@ -52,7 +52,7 @@ const clean = (v: unknown) => (typeof v === 'string' ? v.trim() : v);
 
 async function run() {
   const app = await NestFactory.createApplicationContext(AppModule, { logger: ['error', 'warn', 'log'] });
-  const contentDir = resolve(process.env.SEED_CONTENT_DIR ?? '../package');
+  const contentDir = resolve(process.env.SEED_CONTENT_DIR ?? './websitelama');
   log.log(`Folder konten website: ${contentDir}`);
 
   // 1. Super admin

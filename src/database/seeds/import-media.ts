@@ -3,10 +3,11 @@
  *
  *   npm run media:migrate                → migrasi lengkap:
  *                                          1) file lama di folder UPLOAD_DIR → MinIO (bila STORAGE_DRIVER=minio)
- *                                          2) gambar/video/PDF website (package/public) → penyimpanan CMS,
+ *                                          2) gambar/video/PDF website (websitelama/public) → penyimpanan CMS,
  *                                             lalu semua rujukan "/images/..." di database diubah ke file Media Library
  *   npm run media:migrate -- --only-local   → hanya langkah 1
  *   npm run media:migrate -- --only-site    → hanya langkah 2
+ *   npm run media:migrate -- --images-only  → hanya gambar di websitelama/public/images (tanpa video/PDF & upload lama)
  *   npm run media:migrate -- --dry-run      → tampilkan apa yang akan dilakukan tanpa mengubah apa pun
  *
  * Aman dijalankan berulang: file yang sudah terdaftar dilewati.
@@ -26,7 +27,8 @@ const log = new Logger('MediaImport');
 const args = process.argv.slice(2);
 const DRY = args.includes('--dry-run');
 const ONLY_LOCAL = args.includes('--only-local') || args.includes('--local');
-const ONLY_SITE = args.includes('--only-site');
+const IMAGES_ONLY = args.includes('--images-only');
+const ONLY_SITE = args.includes('--only-site') || IMAGES_ONLY;
 
 const MIME: Record<string, string> = {
   '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png', '.gif': 'image/gif', '.webp': 'image/webp',
@@ -116,16 +118,16 @@ async function run() {
 
   if (!ONLY_LOCAL) {
     // ---------- impor aset website lama ----------
-    const siteDir = resolve(process.env.SEED_CONTENT_DIR ?? '../package', 'public');
+    const siteDir = resolve(process.env.SEED_CONTENT_DIR ?? './websitelama', 'public');
     log.log(`Folder aset website: ${siteDir}`);
-    const files = ['images', 'video', 'docs'].flatMap((d) => walk(join(siteDir, d)));
+    const files = (IMAGES_ONLY ? ['images'] : ['images', 'video', 'docs']).flatMap((d) => walk(join(siteDir, d)));
     let uploaded = 0;
     let skipped = 0;
     let refs = 0;
     for (const f of files) {
       const rel = relative(siteDir, f).split(sep).join('/'); // images/home/a.jpg
       const mime = MIME[extname(f).toLowerCase()];
-      if (!mime) continue;
+      if (!mime || (IMAGES_ONLY && !mime.startsWith('image/'))) continue;
       const oldPath = `/${rel}`;
       const key = `site/${rel}`;
       const newPath = storage.pathFromKey(key);
@@ -151,7 +153,7 @@ async function run() {
       if (!DRY) refs += await rewriteReferences(ds, oldPath, newPath);
     }
     log.log(`✔ Langkah 2: ${uploaded} file diupload, ${skipped} sudah ada, ${refs} rujukan konten diperbarui`);
-    log.log('File asli di package/public tetap ada sebagai cadangan bila CMS tidak aktif.');
+    log.log('File asli di websitelama/public tetap ada sebagai cadangan bila CMS tidak aktif.');
   }
 
   await app.close();

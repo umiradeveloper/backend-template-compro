@@ -1,6 +1,9 @@
 node_modules
+websitelama/.next
 dist
 uploads/*
 !uploads/.gitkeep
 .env
 *.tsbuildinfo
+backups
+migrasi-minio.log
