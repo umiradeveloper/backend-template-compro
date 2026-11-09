@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, Index, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 @Entity('media')
 export class Media {
@@ -34,4 +34,8 @@ export class Media {
 
   @CreateDateColumn()
   createdAt: Date;
+
+  /** berubah saat file diganti — dipakai untuk cache-busting preview */
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

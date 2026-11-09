@@ -33,6 +33,7 @@ const ACTION_LABEL: Record<string, string> = {
   bulk_delete: 'menghapus beberapa',
   reorder: 'mengurutkan ulang',
   import: 'mengimpor',
+  replace: 'mengganti isi',
 };
 
 /**
@@ -57,7 +58,7 @@ export class AuditInterceptor implements NestInterceptor {
     const subAction = segments.slice(1).find((s) => !s.startsWith(':'));
     let action = ACTION_BY_METHOD[method];
     if (subAction) action = subAction.replace(/-/g, '_');
-    if (entity === 'media' && method === 'POST') action = 'upload';
+    if (segments[0] === 'media' && method === 'POST' && !subAction) action = 'upload';
 
     return next.handle().pipe(
       tap((result: any) => {

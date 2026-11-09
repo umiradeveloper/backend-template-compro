@@ -23,4 +23,20 @@ export default () => ({
     dir: process.env.UPLOAD_DIR ?? 'uploads',
     maxMb: parseInt(process.env.MAX_UPLOAD_MB ?? '20', 10),
   },
+  storage: {
+    /** local = simpan di folder UPLOAD_DIR, minio = simpan di MinIO / S3 */
+    driver: (process.env.STORAGE_DRIVER ?? 'local') as 'local' | 'minio',
+    cacheControl: process.env.STORAGE_CACHE_CONTROL ?? 'public, max-age=300',
+  },
+  minio: {
+    endpoint: (process.env.MINIO_ENDPOINT ?? 'http://localhost:9000').replace(/\/$/, ''),
+    region: process.env.MINIO_REGION ?? 'us-east-1',
+    accessKey: process.env.MINIO_ACCESS_KEY ?? 'minioadmin',
+    secretKey: process.env.MINIO_SECRET_KEY ?? 'minioadmin',
+    bucket: process.env.MINIO_BUCKET ?? 'umira-cms',
+    /** URL yang diakses browser, mis. https://cdn.umiraglobal.com — default = endpoint */
+    publicUrl: (process.env.MINIO_PUBLIC_URL ?? process.env.MINIO_ENDPOINT ?? 'http://localhost:9000').replace(/\/$/, ''),
+    /** buat bucket + kebijakan baca publik otomatis saat backend start */
+    autoCreateBucket: (process.env.MINIO_AUTO_CREATE_BUCKET ?? 'true') === 'true',
+  },
 });
