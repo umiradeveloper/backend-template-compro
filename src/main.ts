@@ -8,9 +8,7 @@ import helmet from 'helmet';
 import compression from 'compression';
 import { mkdirSync } from 'fs';
 import { resolve } from 'path';
-import { Request, Response } from 'express';
 import { AppModule } from './app.module';
-import { StorageService } from './modules/storage/storage.service';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -29,15 +27,9 @@ async function bootstrap() {
   app.useBodyParser('json', { limit: '5mb' });
 
   // file upload dapat diakses publik di /uploads/...
-  const storage = app.get(StorageService);
-  if (storage.driver === 'minio') {
-    // file ada di MinIO: alamat lama /uploads/... diarahkan ke MinIO
-    app.use('/uploads', (req: Request, res: Response) => res.redirect(302, storage.publicUrl(decodeURIComponent(req.path))));
-  } else {
-    const uploadDir = resolve(config.get<string>('upload.dir')!);
-    mkdirSync(uploadDir, { recursive: true });
-    app.useStaticAssets(uploadDir, { prefix: '/uploads', maxAge: '5m' });
-  }
+  const uploadDir = resolve(config.get<string>('upload.dir')!);
+  mkdirSync(uploadDir, { recursive: true });
+  app.useStaticAssets(uploadDir, { prefix: '/uploads', maxAge: '30d' });
 
   const swagger = new DocumentBuilder()
     .setTitle('Umira CMS API')
@@ -49,6 +41,6 @@ async function bootstrap() {
 
   const port = config.get<number>('port')!;
   await app.listen(port);
-  Logger.log(`🚀 API berjalan di ${config.get('appUrl')}/api  |  Swagger: ${config.get('appUrl')}/api/docs  |  Storage: ${storage.driver}`, 'Bootstrap');
+  Logger.log(`🚀 API berjalan di ${config.get('appUrl')}/api  |  Swagger: ${config.get('appUrl')}/api/docs`, 'Bootstrap');
 }
 bootstrap();

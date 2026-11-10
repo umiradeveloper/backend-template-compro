@@ -22,8 +22,7 @@ src/
 │   ├── collections             item konten halaman berbasis skema (content-schemas/)
 │   ├── settings                pengaturan singleton berbasis skema
 │   ├── site-texts              teks next-intl per key & bahasa
-│   ├── media                   upload, ganti file, cek pemakaian
-│   ├── storage                 driver penyimpanan: local / MinIO (S3)
+│   ├── media                   upload file (multer) → uploads/YYYY/MM
 │   ├── inquiries               pesan formulir kontak
 │   ├── activity-logs           log otomatis tiap perubahan
 │   ├── dashboard               ringkasan
@@ -42,4 +41,3 @@ src/
 | `npm run seed` / `npm run seed:prod` | isi data awal (ts / hasil build) |
 | `npm run migration:generate` | buat migrasi dari perubahan entity |
 | `npm run migration:run` / `migration:run:prod` | jalankan migrasi |
-| `npm run media:migrate` / `media:migrate:prod` | migrasi file lama (upload lama + gambar website) ke MinIO + perbarui rujukan |

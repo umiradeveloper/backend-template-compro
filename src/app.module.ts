@@ -22,7 +22,6 @@ import { InquiriesModule } from './modules/inquiries/inquiries.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { PublicModule } from './modules/public/public.module';
 import { HealthController } from './health.controller';
-import { StorageModule } from './modules/storage/storage.module';
 
 @Module({
   imports: [
@@ -44,7 +43,6 @@ import { StorageModule } from './modules/storage/storage.module';
       }),
     }),
     ThrottlerModule.forRoot([{ ttl: 60_000, limit: 300 }]),
-    StorageModule,
     ActivityLogsModule,
     SettingsModule,
     AuthModule,
