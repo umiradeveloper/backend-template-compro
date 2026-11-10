@@ -1,10 +1,15 @@
 /**
  * Ubah path relatif "/uploads/..." menjadi URL absolut backend secara rekursif,
  * agar website (domain lain) bisa menampilkan file hasil upload CMS.
+ * Path di dalam teks Markdown (mis. ![](/uploads/a.jpg)) ikut diubah.
  */
 export function absolutizeUploads<T>(value: T, appUrl: string): T {
   if (typeof value === 'string') {
-    return (value.startsWith('/uploads/') ? `${appUrl}${value}` : value) as unknown as T;
+    if (value.startsWith('/uploads/')) return `${appUrl}${value}` as unknown as T;
+    if (value.includes('/uploads/')) {
+      return value.replace(/(\(|"|'|\s|^)(\/uploads\/[^\s)"']+)/g, (_m, pre: string, p: string) => `${pre}${appUrl}${p}`) as unknown as T;
+    }
+    return value;
   }
   if (Array.isArray(value)) return value.map((v) => absolutizeUploads(v, appUrl)) as unknown as T;
   if (value && typeof value === 'object' && !(value instanceof Date)) {

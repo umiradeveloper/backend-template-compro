@@ -12,6 +12,8 @@ WORKDIR /app
 ENV NODE_ENV=production
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
+# gambar/video/PDF bawaan website untuk seed (node dist/database/seeds/run-seed.js)
+COPY --from=build /app/seeds ./seeds
 COPY package.json ./
 RUN mkdir -p uploads
 EXPOSE 4000

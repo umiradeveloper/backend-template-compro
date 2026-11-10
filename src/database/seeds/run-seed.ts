@@ -1,17 +1,22 @@
 /**
- * Seeder: buat super admin, pengaturan default, koleksi konten, teks website,
- * dan impor artikel/proyek/karir dari folder markdown website lama.
+ * Seeder: buat super admin, media (gambar/video/PDF website), pengaturan default,
+ * koleksi konten, teks website, dan impor artikel/proyek/karir dari folder markdown website lama.
  *
  *   npm run seed            (development, ts-node)
  *   npm run seed:prod       (setelah build)
  *
- * Aman dijalankan berulang: data yang sudah ada tidak ditimpa.
+ * Gambar diambil dari seeds/assets (SEED_ASSETS_DIR), disalin ke folder upload (UPLOAD_DIR/site)
+ * dan didaftarkan di Media Library; konten memakai alamat /uploads/site/... dari backend.
+ *
+ * Aman dijalankan berulang: data yang sudah ada tidak ditimpa. Database lama yang masih
+ * memakai alamat /images/... otomatis diarahkan ke file di Media Library.
  */
 import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
 import { Logger } from '@nestjs/common';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { ConfigService } from '@nestjs/config';
+import { DataSource, Repository } from 'typeorm';
 import { existsSync, readdirSync, readFileSync } from 'fs';
 import { join, resolve } from 'path';
 import matter from 'gray-matter';
@@ -28,6 +33,8 @@ import { CareersService } from '../../modules/careers/careers.service';
 import { Setting } from '../../modules/settings/setting.entity';
 import { CollectionItem } from '../../modules/collections/collection-item.entity';
 import { COLLECTION_SEED, SETTINGS_SEED } from './seed-data';
+import { Media } from '../../modules/media/media.entity';
+import { SeedAssets } from './seed-assets';
 
 const log = new Logger('Seeder');
 
@@ -45,6 +52,42 @@ function readMdx(dir: string) {
     }
   }
   return out;
+}
+
+/** kolom yang menyimpan path file — untuk mengarahkan database lama ke Media Library */
+const EXACT_COLS: [string, string][] = [
+  ['blogs', 'coverImage'], ['blogs', 'galleryImg'], ['projects', 'coverImage'],
+  ['careers', 'coverImage'], ['careers', 'galleryImg'], ['users', 'avatar'],
+];
+const JSON_COLS: [string, string][] = [
+  ['projects', 'gallery'], ['collection_items', 'data'], ['collection_items', 'translations'],
+  ['settings', 'data'], ['settings', 'translations'],
+];
+const TEXT_COLS: [string, string][] = [
+  ['blog_translations', 'content'], ['project_translations', 'content'], ['career_translations', 'content'],
+];
+
+async function rewriteReferences(ds: DataSource, from: string, to: string) {
+  let n = 0;
+  for (const [t, c] of EXACT_COLS) {
+    n += (await ds.query(`UPDATE \`${t}\` SET \`${c}\` = ? WHERE \`${c}\` = ?`, [to, from])).affectedRows ?? 0;
+  }
+  for (const [t, c] of JSON_COLS) {
+    n += (
+      await ds.query(
+        `UPDATE \`${t}\` SET \`${c}\` = CAST(REPLACE(CAST(\`${c}\` AS CHAR), ?, ?) AS JSON) WHERE CAST(\`${c}\` AS CHAR) LIKE ?`,
+        [`"${from}"`, `"${to}"`, `%"${from}"%`],
+      )
+    ).affectedRows ?? 0;
+  }
+  for (const [t, c] of TEXT_COLS) {
+    n += (
+      await ds.query(`UPDATE \`${t}\` SET \`${c}\` = REPLACE(REPLACE(\`${c}\`, ?, ?), ?, ?) WHERE \`${c}\` LIKE ?`, [
+        `(${from})`, `(${to})`, `"${from}"`, `"${to}"`, `%${from}%`,
+      ])
+    ).affectedRows ?? 0;
+  }
+  return n;
 }
 
 const toDate = (v: unknown) => (v ? new Date(v as string).toISOString() : undefined);
@@ -70,23 +113,59 @@ async function run() {
     log.log(`✔ Super admin dibuat: ${email}`);
   } else log.log(`• Super admin sudah ada: ${email}`);
 
-  // 2. Pengaturan
+  // 2. Media: gambar/video/PDF bawaan website → folder upload + Media Library
+  const assets = new SeedAssets(resolve(process.env.SEED_ASSETS_DIR ?? './seeds/assets'));
+  const uploadRoot = resolve(app.get(ConfigService).get<string>('upload.dir') ?? 'uploads');
+  const mediaRepo = app.get<Repository<Media>>(getRepositoryToken(Media));
+  const ds = app.get(DataSource);
+  if (!assets.count) {
+    log.warn(`• Folder aset ${assets.root} kosong/tidak ada — media dilewati, konten memakai alamat /images/... website`);
+  } else {
+    let copied = 0;
+    let registered = 0;
+    let refs = 0;
+    for (const a of assets.list) {
+      if (assets.copyTo(uploadRoot, a)) copied++;
+      if (!(await mediaRepo.exist({ where: { path: a.uploadPath } }))) {
+        const name = a.rel.split('/').pop()!;
+        await mediaRepo.save(
+          mediaRepo.create({
+            filename: name,
+            originalName: name,
+            mimeType: a.mime,
+            size: a.size,
+            path: a.uploadPath,
+            folder: a.rel.includes('/') ? `website/${a.rel.split('/')[0]}` : 'website',
+            alt: null,
+            uploadedById: null,
+          }),
+        );
+        registered++;
+      }
+      // database lama yang masih memakai /images/... diarahkan ke file media
+      refs += await rewriteReferences(ds, a.sitePath, a.uploadPath);
+    }
+    log.log(`✔ Media: ${assets.count} file (${copied} disalin ke ${uploadRoot}/site, ${registered} didaftarkan${refs ? `, ${refs} rujukan lama diperbarui` : ''})`);
+  }
+  const A = <T>(v: T) => assets.mapDeep(v);
+
+  // 3. Pengaturan
   const settings = app.get(SettingsService);
   const settingRepo = app.get<Repository<Setting>>(getRepositoryToken(Setting));
   for (const [key, value] of Object.entries(SETTINGS_SEED)) {
     if (await settingRepo.exist({ where: { key } })) continue;
-    await settings.upsert(key, value as any);
+    await settings.upsert(key, A(value) as any);
     log.log(`✔ Pengaturan "${key}"`);
   }
 
-  // 3. Message JSON next-intl
+  // 4. Message JSON next-intl
   const messages: Record<string, any> = {};
   for (const l of LOCALES) {
     const f = join(contentDir, 'src', 'message', l, `${l}.json`);
     messages[l] = existsSync(f) ? JSON.parse(readFileSync(f, 'utf8')) : {};
   }
 
-  // 4. Koleksi
+  // 5. Koleksi
   const collections = app.get(CollectionsService);
   const itemRepo = app.get<Repository<CollectionItem>>(getRepositoryToken(CollectionItem));
   const fromMsg: Record<string, (l: string, i: number) => Record<string, unknown>> = {
@@ -103,26 +182,26 @@ async function run() {
         Object.assign(tr.en, fromMsg[key]('en', i));
         Object.assign(tr.id, fromMsg[key]('id', i));
       }
-      await collections.create(key, { data: item.data ?? {}, translations: tr });
+      await collections.create(key, A({ data: item.data ?? {}, translations: tr }));
     }
     log.log(`✔ Koleksi "${key}" (${items.length} item)`);
   }
 
-  // 5. Teks website
+  // 6. Teks website
   const siteTexts = app.get(SiteTextsService);
   for (const l of LOCALES) {
     const res = await siteTexts.importMessages(l, messages[l], false);
     log.log(`✔ Teks website [${l}]: ${res.imported} key baru`);
   }
 
-  // 6. Blog
+  // 7. Blog
   const blogs = app.get(BlogsService);
   const blogMdx = readMdx(join(contentDir, 'markdown', 'blogs'));
   let n = 0;
   for (const [slug, byLocale] of Object.entries(blogMdx)) {
     if (await blogs.findBySlug(slug, false)) continue;
     const base = (byLocale.en ?? byLocale.id).data;
-    await blogs.create({
+    await blogs.create(A({
       slug,
       status: ContentStatus.PUBLISHED,
       publishedAt: toDate(base.date),
@@ -131,12 +210,12 @@ async function run() {
       translations: Object.entries(byLocale).map(([locale, { data, content }]) => ({
         locale, title: clean(data.title), detail: clean(data.detail), excerpt: clean(data.scrolltoread), content,
       })),
-    });
+    }));
     n++;
   }
   log.log(`✔ Blog diimpor: ${n}`);
 
-  // 7. Proyek
+  // 8. Proyek
   const projects = app.get(ProjectsService);
   const projectMdx = readMdx(join(contentDir, 'markdown', 'projects'));
   n = 0;
@@ -144,7 +223,7 @@ async function run() {
   for (const [slug, byLocale] of Object.entries(projectMdx)) {
     if (await projects.findBySlug(slug, false)) continue;
     const base = (byLocale.en ?? byLocale.id).data;
-    await projects.create({
+    await projects.create(A({
       slug,
       status: ContentStatus.PUBLISHED,
       coverImage: clean(base.coverImage),
@@ -155,19 +234,19 @@ async function run() {
       translations: Object.entries(byLocale).map(([locale, { data, content }]) => ({
         locale, title: clean(data.title), industry: clean(data.industry), scopeOfWork: data.ScopeOfWork ?? [], description: clean(data.description), content,
       })),
-    });
+    }));
     n++;
   }
   log.log(`✔ Proyek diimpor: ${n}`);
 
-  // 8. Karir
+  // 9. Karir
   const careers = app.get(CareersService);
   const careerMdx = readMdx(join(contentDir, 'markdown', 'career'));
   n = 0;
   for (const [slug, byLocale] of Object.entries(careerMdx)) {
     if (await careers.findBySlug(slug, false)) continue;
     const base = (byLocale.en ?? byLocale.id).data;
-    await careers.create({
+    await careers.create(A({
       slug,
       status: ContentStatus.PUBLISHED,
       publishedAt: toDate(base.date),
@@ -179,7 +258,7 @@ async function run() {
       translations: Object.entries(byLocale).map(([locale, { data, content }]) => ({
         locale, title: clean(data.title), detail: clean(data.detail), excerpt: clean(data.scrolltoread), content,
       })),
-    });
+    }));
     n++;
   }
   log.log(`✔ Lowongan diimpor: ${n}`);
