@@ -2,6 +2,12 @@ export default () => ({
   env: process.env.NODE_ENV ?? 'development',
   port: parseInt(process.env.PORT ?? '4000', 10),
   appUrl: (process.env.APP_URL ?? 'http://localhost:4000').replace(/\/$/, ''),
+  /**
+   * URL publik folder upload (pengganti awalan "/uploads" pada alamat file).
+   * Isi bila file disajikan Nginx/CDN terpisah dari API, mis. https://files.umiraglobal.com/uploads
+   * Kosong = <APP_URL>/uploads (disajikan backend).
+   */
+  assetUrl: (process.env.ASSET_URL || `${(process.env.APP_URL ?? 'http://localhost:4000').replace(/\/$/, '')}/uploads`).replace(/\/$/, ''),
   corsOrigins: (process.env.CORS_ORIGINS ?? 'http://localhost:5173,http://localhost:3005')
     .split(',')
     .map((o) => o.trim())

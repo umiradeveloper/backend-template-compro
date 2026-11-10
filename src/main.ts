@@ -41,6 +41,6 @@ async function bootstrap() {
 
   const port = config.get<number>('port')!;
   await app.listen(port);
-  Logger.log(`🚀 API berjalan di ${config.get('appUrl')}/api  |  Swagger: ${config.get('appUrl')}/api/docs`, 'Bootstrap');
+  Logger.log(`🚀 API berjalan di ${config.get('appUrl')}/api  |  Swagger: ${config.get('appUrl')}/api/docs  |  File: ${config.get('assetUrl')}`, 'Bootstrap');
 }
 bootstrap();

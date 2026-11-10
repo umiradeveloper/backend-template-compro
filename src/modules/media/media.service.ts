@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { promises as fs } from 'fs';
 import { join, resolve } from 'path';
 import { Media } from './media.entity';
+import { uploadUrl } from '../../common/utils/asset-url';
 import { paginated, PaginationQueryDto } from '../../common/dto/pagination.dto';
 
 export const ALLOWED_MIME = [
@@ -15,16 +16,16 @@ export const ALLOWED_MIME = [
 
 @Injectable()
 export class MediaService {
-  private readonly appUrl: string;
+  private readonly assetUrl: string;
   private readonly uploadRoot: string;
 
   constructor(@InjectRepository(Media) private readonly repo: Repository<Media>, config: ConfigService) {
-    this.appUrl = config.get<string>('appUrl')!;
+    this.assetUrl = config.get<string>('assetUrl')!;
     this.uploadRoot = resolve(config.get<string>('upload.dir')!);
   }
 
   withUrl(m: Media) {
-    return { ...m, url: `${this.appUrl}${m.path}` };
+    return { ...m, url: uploadUrl(m.path, this.assetUrl) };
   }
 
   async findAll(q: PaginationQueryDto & { type?: string; folder?: string }) {
